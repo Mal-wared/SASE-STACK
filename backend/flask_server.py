@@ -88,7 +88,9 @@ def login():
         return jsonify({'status': 'error', 'message': 'Invalid password'}), 400
 
     session.close()
-    return jsonify({'status': 'success', 'message': 'Login successful'})
+
+    #userid will be stored in localstorage
+    return jsonify({'status': 'success', 'message': 'Login successful', 'userid': user.id})
 
 if __name__ == '__main__':
     app.run(debug=True)
