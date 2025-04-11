@@ -25,6 +25,12 @@ class User(Base):
     email = Column(String)
     password = Column(String)
 
+class Category(Base):
+    __tablename__ = 'categories'
+    id = Column(Integer, primary_key=True)
+    userid = Column(Integer, ForeignKey('users.id'))
+    name = Column(String)
+
 # Create tables and .db file if it doesn't exist
 Base.metadata.create_all(engine)
 

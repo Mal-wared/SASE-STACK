@@ -18,6 +18,8 @@ loginForm.addEventListener('submit', function(e) {
         if (result.status === 'success') {
             window.location.href = 'home.html';
             console.log(result.userid)
+            console.log(data)
+            console.log(JSON.stringify(data))
 
             //set userid in localstorage
             localStorage.setItem('userid',result.userid)

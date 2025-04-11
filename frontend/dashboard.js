@@ -23,12 +23,35 @@ const search = document.querySelector(".category-search")
 const sortInput = document.querySelector('input[list="sort-options"]');
 
 // --- NEW CODE: Run this when the DOM is ready ---
-document.addEventListener('DOMContentLoaded', () => {
+//async so it waits for getCategoriesFromDatabase before adding everything
+// document.addEventListener('DOMContentLoaded', async () => {
+//   await getCategoriesFromDatabase()
+  
+//   for (const categoryName in info) {
+//     populateInitialCategoryNames(categoryName) // Add category names to the list
+//   }
+//   openFirstCategory();
+
+//   for (const categoryName in info) {
+//     console.log("test",categoryName)
+//   }
+// });
+
+//runs on load
+//this kind of sucks
+//if you find something better pls do it
+window.onload = async () => {
+  await getCategoriesFromDatabase()
+  
   for (const categoryName in info) {
     populateInitialCategoryNames(categoryName) // Add category names to the list
   }
   openFirstCategory();
-});
+
+  for (const categoryName in info) {
+    console.log("test",categoryName)
+  }
+}
 
 // close or pull out category list after clicking menu icon
 pullout.addEventListener('click', () =>
@@ -184,6 +207,39 @@ function openFirstCategory() {
   }
 }
 
+async function getCategoriesFromDatabase() {
+  try {
+    // Await the fetch request
+    const response = await fetch('http://127.0.0.1:5000/get-categories', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'userid': localStorage.getItem('userid')
+      }
+    });
+
+    // Await the response as JSON
+    const result = await response.json();
+
+    // Check if the result status is success
+    if (result.status === 'success') {
+      console.log("categories:", result);
+      
+      // Loop through the categories and update the info object
+      for (const cat of result.categories) {
+        console.log(cat.name);
+        if(!info[cat.name]){
+          info[cat.name] = {};  // Add category to the info object
+          console.log(info)
+        }
+      }
+    } else {
+      console.log('Error:', result.message);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
 
 function populateInitialCategoryNames(name) {
   const categoryBox = document.getElementById("buttonList");
@@ -239,6 +295,32 @@ function addCategoryName(name = "cat") {
         input.blur(); // Better to blur than just set readOnly
       }
     };
+
+    console.log("openCat " + uniqueName)
+
+    //POST
+    fetch('http://127.0.0.1:5000/add-category', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+          'userid': localStorage.getItem('userid'),
+          'name': uniqueName
+      })
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.status === 'success') {
+            console.log("added category: " + result.userid + " " + result.name)
+        } else {
+            console.log('Error:', result.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+
 }
 
 function selectCategoryNameInput(input) {
@@ -344,7 +426,11 @@ function closeCategoryNameInput(input) {
   // If the value didn't change, do nothing to the object
   if(input.value === originalValue) {
     input.readOnly = true;
-    console.log(info);
+    // console.log("orig " + info);
+
+    for(const key in info){
+      console.log(key, info[key])
+    }
     return;
   }
  
@@ -373,5 +459,5 @@ function closeCategoryNameInput(input) {
 
   input.dataset.originalValue = input.value; // Update the stored value
   input.readOnly = true;
-  console.log(info);
+  console.log("closeCat " + info);
 }

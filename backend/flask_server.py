@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine, MetaData, Table
 from sqlalchemy.orm import sessionmaker
 from werkzeug.security import generate_password_hash, check_password_hash
-from tables import User
+from tables import User, Category
 import os
 import re
 
@@ -14,7 +14,7 @@ app.secret_key = 'secret_key'
 
 # Allow frontend requests to backend
 CORS(app, origins=["http://127.0.0.1:5500"], methods=["GET", "POST", "OPTIONS"])
-
+# CORS(app)
 
 directory = 'backend'
 db_filename = 'User.db'
@@ -91,6 +91,49 @@ def login():
 
     #userid will be stored in localstorage
     return jsonify({'status': 'success', 'message': 'Login successful', 'userid': user.id})
+
+@app.route('/add-category', methods=['POST'])
+def add_category():
+    data = request.get_json()
+    userid = data.get('userid')
+    name = data.get('name')
+
+    if not all([userid,name]):
+        return jsonify({'status': 'error', 'message': 'All fields are required'}), 400
+
+    session = Session()
+
+    # Check if category already exists
+    existing_category = session.query(Category).filter_by(name=name).first()
+    if existing_category:
+        session.close()
+        return jsonify({'status': 'error', 'message': 'Duplicate category'}), 400
+
+    # Create new category
+    new_category = Category(userid=userid,name=name)
+
+    # Add to database
+    session.add(new_category)
+    session.commit()
+    session.close()
+
+    return jsonify({'status': 'success', 'message': 'Category added', 'userid': userid, 'name': name})
+
+@app.route('/get-categories', methods=['GET'])
+def get_categories():
+    data = request.headers
+    userid = data.get('userid')
+
+    session = Session()
+    categories = session.query(Category).filter_by(userid=userid).all()
+    session.close()
+
+    if categories:
+        categories_list = [{'name': cat.name} for cat in categories]
+        return jsonify({'status': 'success', 'message': 'Categories got', 'categories': categories_list})
+    else:
+        return jsonify({'status': 'error', 'message': 'Categories not got'})
+    
 
 if __name__ == '__main__':
     app.run(debug=True)
