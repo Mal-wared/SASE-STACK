@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from tables import Base, User
+from tables import Base, User, Item
 import os
 
 '''
