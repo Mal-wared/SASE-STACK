@@ -41,7 +41,7 @@ const sortInput = document.querySelector('input[list="sort-options"]');
 //this kind of sucks
 //if you find something better pls do it
 window.onload = async () => {
-  await getCategoriesFromDatabase()
+  await getCategoriesFromDatabase(localStorage.getItem('userid'))
   
   for (const categoryName in info) {
     populateInitialCategoryNames(categoryName) // Add category names to the list
@@ -215,14 +215,14 @@ function openFirstCategory() {
   }
 }
 
-async function getCategoriesFromDatabase() {
+async function getCategoriesFromDatabase(userid) {
   try {
     // Await the fetch request
     const response = await fetch('http://127.0.0.1:5000/get-categories', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'userid': localStorage.getItem('userid')
+        'userid': userid
       }
     });
 
@@ -241,6 +241,35 @@ async function getCategoriesFromDatabase() {
           console.log(info)
         }
       }
+    } else {
+      console.log('Error:', result.message);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+async function updateCategoryName(userid, old_name, new_name) {
+  try {
+    // Await the fetch request
+    const response = await fetch('http://127.0.0.1:5000/update-category-name', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+          'userid': userid,
+          'old_name': old_name,
+          'new_name': new_name
+      })
+    });
+
+    // Await the response as JSON
+    const result = await response.json();
+
+    // Check if the result status is success
+    if (result.status === 'success') {
+      localStorage.setItem('prevSelectedCat', new_name)
     } else {
       console.log('Error:', result.message);
     }
@@ -451,6 +480,9 @@ function closeCategoryNameInput(input) {
     }
     input.value = input.value + " (" + i + ")";
   }
+
+  let old_name = null;
+  let new_name = null;
  
   // If original value exists in info, rename the key
   if(originalValue in info) {
@@ -460,13 +492,21 @@ function closeCategoryNameInput(input) {
     delete info[originalValue];
     // Create new key with the same contents
     info[input.value] = contents;
+
+    old_name = originalValue;
+    new_name = input.value;
   } else {
     // This normally shouldn't happen, but add it as a fallback
     info[input.value] = {};
   }
 
-
   input.dataset.originalValue = input.value; // Update the stored value
+  
+  console.log("asd: " + old_name + " " + new_name)
   input.readOnly = true;
   console.log("closeCat " + info);
+
+  if(old_name && new_name) {
+    updateCategoryName(localStorage.getItem('userid'), old_name, new_name);
+  }
 }

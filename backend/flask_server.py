@@ -133,6 +133,25 @@ def get_categories():
         return jsonify({'status': 'success', 'message': 'Categories got', 'categories': categories_list})
     else:
         return jsonify({'status': 'error', 'message': 'Categories not got'})
+
+@app.route('/update-category-name', methods=['POST'])
+def update_category_name():
+    data = request.get_json()
+    userid = data.get('userid')
+    old_name = data.get('old_name')
+    new_name = data.get('new_name')
+
+    session = Session()
+    category = session.query(Category).filter_by(userid=userid,name=old_name).first()
+
+    if category:
+        category.name = new_name
+        session.commit()
+        session.close()
+        return jsonify({'status': 'success', 'message': 'Category name changed', 'new name': category.name})
+    else:
+        session.close()
+        return jsonify({'status': 'error', 'message': 'name not changed'})
     
 
 if __name__ == '__main__':
