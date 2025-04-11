@@ -1,12 +1,12 @@
-const form = document.getElementById('signup-form');
+const loginForm = document.getElementById('login-form');
 
-form.addEventListener('submit', function(e) {
+loginForm.addEventListener('submit', function(e) {
     e.preventDefault();
 
-    const formData = new FormData(form);
+    const formData = new FormData(loginForm);
     const data = Object.fromEntries(formData.entries());
 
-    fetch('http://127.0.0.1:5000/sign-up', {
+    fetch('http://127.0.0.1:5000/login', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -23,6 +23,6 @@ form.addEventListener('submit', function(e) {
     })
     .catch(error => {
         console.error('Error:', error);
+        console.log(JSON.stringify(data));
     });
 });
-
