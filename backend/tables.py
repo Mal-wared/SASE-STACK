@@ -24,6 +24,26 @@ class User(Base):
     name = Column(String)
     email = Column(String)
     password = Column(String)
+    
+# Define model classes for caregories
+class Categories(Base):
+    __tablename__ = 'categories'
+    id = Column(Integer, primary_key=True)
+    categoryName = Column(String)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    
+class Item(Base):
+    __tablename__ = 'item'
+    id = Column(Integer, primary_key=True)
+    itemName = Column(String)
+    itemRating = Column(Integer)
+    itemReview = Column(String)
+    # itemImage = Column()
+    category_id = Column(Integer, ForeignKey('categories.id'))
+    
+    
+
+# Define model classes for items
 
 # Create tables and .db file if it doesn't exist
 Base.metadata.create_all(engine)
