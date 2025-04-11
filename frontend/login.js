@@ -1,3 +1,6 @@
+//user id set to localstorage
+//remove on logout
+
 const loginForm = document.getElementById('login-form');
 
 loginForm.addEventListener('submit', function(e) {

@@ -189,7 +189,15 @@ entryForm.addEventListener('submit', (event) => {
 
 function openFirstCategory() {
   const allInputs = document.querySelectorAll('.category-name-btn-input');
-  const firstCategoryName = Object.keys(info)[0];
+  // const firstCategoryName = Object.keys(info)[0];
+
+  //if prev category hasnt been stored, store it as first
+  if(!(localStorage.getItem('prevSelectedCat')) && allInputs.length > 0) {
+    localStorage.setItem('prevSelectedCat',Object.keys(info)[0])
+  }
+
+  //select whatever was previously selected
+  const firstCategoryName = localStorage.getItem('prevSelectedCat');
 
   if (firstCategoryName in info && allInputs.length > 0) {
     currentCategory = firstCategoryName;
@@ -334,6 +342,7 @@ function selectCategoryNameInput(input) {
   input.classList.add('active-category');
   currentCategory = input.value;
   displayContent(input.value); // Display the content of the selected category
+  localStorage.setItem('prevSelectedCat',input.value)
  
 }
 
