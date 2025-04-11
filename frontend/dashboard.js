@@ -45,6 +45,7 @@ window.onload = async () => {
   
   for (const categoryName in info) {
     populateInitialCategoryNames(categoryName) // Add category names to the list
+    await getItemsFromCategory(localStorage.getItem('userid'), categoryName)
   }
   openFirstCategory();
 
@@ -169,6 +170,33 @@ entryForm.addEventListener('submit', (event) => {
     image: uploadedImageDataURL
   };
 
+  //ADD ITEM
+  fetch('http://127.0.0.1:5000/add-item', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+        'userid': localStorage.getItem('userid'),
+        'categoryName': currentCategory,
+        'title': title,
+        'rating': rating,
+        'review': review,
+        'imageUrl': uploadedImageDataURL
+    })
+  })
+  .then(response => response.json())
+  .then(result => {
+      if (result.status === 'success') {
+          console.log("added category: " + result.categoryid + " " + result.title + " " + result.rating + " " + result.review + " " + result.imageUrl)
+      } else {
+          console.log('Error:', result.message);
+      }
+  })
+  .catch(error => {
+      console.error('Error:', error);
+  });
+
   console.log('New Entry Added:', { category: currentCategory, title, rating, review, image: uploadedImageDataURL });
 
   // Clear the form fields
@@ -186,6 +214,8 @@ entryForm.addEventListener('submit', (event) => {
 
   displayContent(currentCategory);
 });
+
+
 
 function openFirstCategory() {
   const allInputs = document.querySelectorAll('.category-name-btn-input');
@@ -239,6 +269,42 @@ async function getCategoriesFromDatabase(userid) {
         if(!info[cat.name]){
           info[cat.name] = {};  // Add category to the info object
           console.log(info)
+        }
+      }
+    } else {
+      console.log('Error:', result.message);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+async function getItemsFromCategory(userid, categoryName) {
+  try {
+    // Await the fetch request
+    const response = await fetch('http://127.0.0.1:5000/get-items', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'userid': userid,
+        'categoryName': categoryName
+      }
+    });
+
+    // Await the response as JSON
+    const result = await response.json();
+
+    // Check if the result status is success
+    if (result.status === 'success') {
+      console.log("items: ", result);
+      
+      // Loop through the items and update the info object
+      for (const item of result.items) {
+        console.log(item.title);
+        info[categoryName][item.title] = {
+          rating: item.rating,
+          review: item.review,
+          image: item.imageUrl
         }
       }
     } else {

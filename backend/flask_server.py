@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine, MetaData, Table
 from sqlalchemy.orm import sessionmaker
 from werkzeug.security import generate_password_hash, check_password_hash
-from tables import User, Category
+from tables import User, Category, Item
 import os
 import re
 
@@ -152,7 +152,65 @@ def update_category_name():
     else:
         session.close()
         return jsonify({'status': 'error', 'message': 'name not changed'})
+
+
+#todo: add item
+@app.route('/add-item', methods=['POST'])
+def add_item():
+    data = request.get_json()
+    userid = data.get('userid')
+    categoryName = data.get('categoryName')
+    title = data.get('title')
+    rating = data.get('rating')
+    review = data.get('review')
+    imageUrl = data.get('imageUrl')
+
+    if not all([userid, categoryName, title, rating, review, imageUrl]):
+        return jsonify({'status': 'error', 'message': 'All fields are required'}), 400
+
+    session = Session()
+    category = session.query(Category).filter_by(userid=userid, name=categoryName).first()
+
+    if category:
+        categoryid = category.id
+        new_item = Item(categoryid=categoryid,title=title,rating=rating,review=review,imageUrl=imageUrl)
+        session.add(new_item)
+        session.commit()
+        session.close()
+        
+        return jsonify({'status': 'success', 
+                    'message': 'Item added', 
+                    'id': new_item.id,
+                    'categoryid': categoryid, 
+                    'title': title,
+                    'rating': rating,
+                    'review': review,
+                    'imageURL': imageUrl})
+    else:
+        session.close()
+        return jsonify({'status': 'error', 'message': 'Category not found'}), 400
+
+@app.route('/get-items', methods=['GET'])
+def get_items():
+    data = request.headers
+    userid = data.get('userid')
+    categoryName = data.get('categoryName')
+
+    session = Session()
     
+    #find the category to get the category id
+    category = session.query(Category).filter_by(userid=userid,name=categoryName).first()
+
+    #if category exists, get the list of items belonging to the category
+    if category:
+        categoryid = category.id
+        items = session.query(Item).filter_by(categoryid=categoryid).all()
+        session.close()
+        items_list = [{'title': item.title, 'rating': item.rating, 'review': item.review, 'imageUrl': item.imageUrl} for item in items]
+        return jsonify({'status': 'success', 'message': 'Categories got', 'items': items_list})
+    else:
+        session.close()
+        return jsonify({'status': 'error', 'message': 'Items not got'})
 
 if __name__ == '__main__':
     app.run(debug=True)

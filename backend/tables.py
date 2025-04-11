@@ -31,6 +31,15 @@ class Category(Base):
     userid = Column(Integer, ForeignKey('users.id'))
     name = Column(String)
 
+class Item(Base):
+    __tablename__ = 'items'
+    id = Column(Integer, primary_key=True)
+    categoryid = Column(Integer, ForeignKey('categories.id'))
+    title = Column(String)
+    rating = Column(Integer)
+    review = Column(String)
+    imageUrl = Column(String)
+
 # Create tables and .db file if it doesn't exist
 Base.metadata.create_all(engine)
 
