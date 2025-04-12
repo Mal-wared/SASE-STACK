@@ -7,6 +7,7 @@ var info = {
 var currentCategory; // Default category
 var categoryNames = []; // Array to store category names
 var uploadedImageDataURL = ''; // Image URL to Upload
+let editingEntryTitle = null; // Track which entry is being edited 
 
 
 // Get DOM (Document Object Model) elements
@@ -21,6 +22,7 @@ const pullout = document.querySelector('.menu-icon');
 const categoryBox = document.querySelector('.box-category');
 const search = document.querySelector(".category-search")
 const sortInput = document.querySelector('input[list="sort-options"]');
+const entryCard = document.querySelector('.box-list-content');
 
 // --- NEW CODE: Run this when the DOM is ready ---
 //async so it waits for getCategoriesFromDatabase before adding everything
@@ -71,12 +73,17 @@ pullout.addEventListener('click', () =>
 // Open the modal when the + Entry button is clicked
 entryButton.addEventListener('click', () => {
   modal.style.display = 'flex';
+  editingEntryTitle = null;
+  entryForm.reset();
+  imagePreview.style.backgroundImage= '';
+  ratingStars.forEach(star => star.classList.remove('active'));
 });
 
 // Close/Hide the modal when the close button (×) is clicked
 closeModalBtn.addEventListener('click', () => {
   modal.style.display = 'none';
   entryForm.reset();
+  editingEntryTitle = null;
 });
 
 // Close/Hide the modal if the user clicks outside of the modal content
@@ -84,6 +91,7 @@ window.addEventListener('click', (event) => {
   if (event.target === modal) {
     modal.style.display = 'none';
     entryForm.reset();
+    editingEntryTitle = null;
   }
 });
 
@@ -163,6 +171,11 @@ entryForm.addEventListener('submit', (event) => {
     info[currentCategory] = {};
   }
 
+  // If editing and title changes delete the old title
+  if (editingEntryTitle && editingEntryTitle != title) {
+    delete info[currentCategory][editingEntryTitle];
+  }
+
   // Add the new entry with its title, rating, and review
   info[currentCategory][title] = {
     rating: rating,
@@ -211,6 +224,9 @@ entryForm.addEventListener('submit', (event) => {
 
   // Close the modal
   modal.style.display = 'none';
+
+  // Change edit status to null
+  editingEntryTitle = null;
 
   displayContent(currentCategory);
 });
@@ -475,6 +491,23 @@ function displayItemInfo(title, rating, review, image) {
   const entryDiv = document.createElement('div');
   entryDiv.className = 'entry-card';
 
+  // Trash icon on entry card
+  const trashIcon = document.createElement('img');
+  trashIcon.src = '/images/trash_icon.png';
+  trashIcon.className = 'trash-icon';
+  trashIcon.title = 'Delete Entry'
+  // Allow the trash icon to be clicked to delete the card
+  trashIcon.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if(confirm(`Are you sure you want to delete "${title}"?`)) {
+      delete info[currentCategory][title]; // Remove from data
+      allDiv.remove(); // Remove from DOM
+    }
+  });
+
+  // Append trash icon to entry div
+  entryDiv.appendChild(trashIcon);
+
   // Info container
   const infoDiv = document.createElement('div');
   infoDiv.className = 'entry-info';
@@ -511,6 +544,25 @@ function displayItemInfo(title, rating, review, image) {
   entryDiv.appendChild(infoDiv);
   allDiv.appendChild(entryDiv);
   allDiv.appendChild(imageDiv);
+
+  // Make entry clickable to edit
+  allDiv.addEventListener('click', () => {
+    editingEntryTitle = title;
+    document.getElementById('title').value = title;
+    document.getElementById('review').value = review;
+    ratingStars.forEach((star, i) => {
+      star.classList.toggle('active', i < rating);
+    });
+    if (image) {
+      uploadedImageDataURL = image;
+      imagePreview.style.backgroundImage = `url('${image}')`;
+      imagePreview.style.backgroundSize = 'cover';
+      imagePreview.style.backgroundPosition = 'center';
+    } else {
+      imagePreview.style.backgroundImage = '';
+    }
+    modal.style.display = 'flex';
+  });
 
   contentBox.appendChild(allDiv);
 }
