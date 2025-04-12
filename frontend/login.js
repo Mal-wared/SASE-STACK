@@ -23,10 +23,15 @@ form.addEventListener('submit', function(e) {
         if (result.status === 'success') {
             window.location.href = 'home.html';
         } else {
-            if (result.message === 'User does not exist' || result.message === 'Invalid password') {
-                passwordInput.setCustomValidity("Email and password do not match.");
+            if (result.message === 'User does not exist') {
+                passwordInput.setCustomValidity("This user does not exist.");
                 passwordInput.reportValidity();
-            } else {
+            }
+            if (result.message === 'Invalid password') {
+                passwordInput.setCustomValidity("Invalid password.");
+                passwordInput.reportValidity();
+            }
+            else {
                 console.log('Error:', result.message);
             }
         }
@@ -34,4 +39,11 @@ form.addEventListener('submit', function(e) {
     .catch(error => {
         console.error('Error:', error);
     });
+});
+
+emailInput.addEventListener('input', () => {
+    emailInput.setCustomValidity('');
+});
+passwordInput.addEventListener('input', () => {
+    passwordInput.setCustomValidity('');
 });
