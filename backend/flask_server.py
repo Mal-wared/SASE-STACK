@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine, MetaData, Table
 from sqlalchemy.orm import sessionmaker
 from werkzeug.security import generate_password_hash, check_password_hash
-from tables import User
+from tables import User, Category, Item
 import os
 import re
 
@@ -88,8 +88,151 @@ def login():
         return jsonify({'status': 'error', 'message': 'Invalid password'}), 400
 
     session.close()
-    return jsonify({'status': 'success', 'message': 'Login successful'})
+    return jsonify({'status': 'success', 'message': 'Login successful', 'id': user.id})
+
+@app.route('/add-category',methods=['POST'])
+def add_category():
+    data = request.get_json()
+    user_id = data.get('user_id')
+    category_name = data.get('category_name')
+
+    if not all([user_id,category_name]):
+        return jsonify({'status': 'error', 'message': 'All fields are required'}), 400
+    
+    session = Session()
+    user = session.query(User).filter_by(id=user_id).first()
+    if(user):
+        new_category = Category(user_id=user_id,name=category_name)
+        session.add(new_category)
+        session.commit()
+        session.close()
+
+        return jsonify({'status': 'success', 'message': 'Category added'})
+    else:
+        session.close()
+        return jsonify({'status': 'error', 'message': 'User does not exist'}), 400
+
+@app.route('/get-category-list',methods=['GET'])
+def get_category_list():
+    data = request.headers
+    user_id = data.get('userid')
+
+    if not all([user_id]):
+        return jsonify({'status': 'error', 'message': 'All fields are required'}), 400
+
+    session = Session()
+    user = session.query(User).filter_by(id=user_id).first()
+
+    if(user):
+        result = session.query(Category).filter_by(user_id=user_id).all()
+        category_list = {}
+
+        session.close()
+        if(result):
+            for category in result:
+                category_list[category.id] = category.name
+            
+            if(len(category_list) > 0):
+                return jsonify({'status': 'success', 'category_list': category_list})
+        
+        return jsonify({'status': 'error', 'message': 'No categories'}), 400
+    else:
+        session.close()
+        return jsonify({'status': 'error', 'message': 'No user'}), 400
+
+def get_category_list(user_id):
+    session = Session()
+    user = session.query(User).filter_by(id=user_id).first()
+
+    if(user):
+        result = session.query(Category).filter_by(user_id=user_id).all()
+        category_list = {}
+
+        session.close()
+        if(result):
+            for category in result:
+                category_list[category.id] = category.name
+            return category_list
+    else:
+        session.close()
+        return(None)
+
+def get_item_list(category_id):
+    session = Session()
+    category = session.query(Category).filter_by(id=category_id).first()
+
+    if(category):
+        result = session.query(Item).filter_by(category_id=category_id).all()
+        session.close()
+        if(not result):
+            return (None)
+
+        item_list = {}
+        for item in result:
+            item_list[item.title] = {'rating': item.rating, 'review': item.review, 'image': item.image}
+            # item_list.append({'title': item.title, 'rating': item.rating, 'review': item.review, 'image': item.image})
+        
+        return item_list
+    else:
+        session.close()
+        return(None)
+
+@app.route('/add-item',methods=['POST'])
+def add_item():
+    data = request.get_json()
+    category_id = data.get('category_id')
+    title = data.get('title')
+    rating = data.get('rating')
+    review = data.get('review')
+    image = data.get('image')
+
+    if not all([category_id, title, rating, review, image]):
+        return jsonify({'status': 'error', 'message': 'All fields are required'}), 400
+    
+    session = Session()
+    category = session.query(Category).filter_by(id=category_id).first()
+    if(category):
+        new_item = Item(category_id=category_id, title=title, rating=rating, review=review, image=image)
+        session.add(new_item)
+        session.commit()
+        session.close()
+
+        return jsonify({'status': 'success', 'message': 'Item added'})
+    else:
+        session.close()
+        return jsonify({'status': 'error', 'message': 'Invalid category id'}), 400
+
+#get categories with items together
+@app.route('/user-info',methods=['GET'])
+def get_user_info():
+    data = request.headers
+    user_id = data.get('userid')
+
+    session = Session()
+    user = session.query(User).filter_by(id=user_id).first()
+
+    if not all([user_id]):
+        session.close()
+        return jsonify({'status': 'error', 'message': 'All fields are required'}), 400
+
+    if(not user):
+        session.close()
+        return jsonify({'status': 'error', 'message': 'Invalid user'}), 400
+
+    session.close()
+    category_list = get_category_list(user_id)
+
+    info = {}
+
+    if(category_list):
+        for category_id in category_list:
+            item_list = get_item_list(category_id)
+            category_name = category_list[category_id]
+            info[category_name] = item_list
+        
+        return jsonify({'status': 'success', 'info': info})
+    else:
+        return jsonify({'status': 'error', 'message': 'No categories'}), 400
 
 if __name__ == '__main__':
     app.run(debug=True)
-

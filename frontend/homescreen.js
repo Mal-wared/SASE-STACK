@@ -3,18 +3,8 @@
 //import { recent } from './dashboard.js';
 let recent = 0
 
-var info = 
-{
-    'ding tea': 
-    {
-        'wintermelon milk tea': { rating: 5, review: 'good', image: '../images/yiyi.jpg' },
-        'peach oolong tea': { rating: 4, review: 'good', image: '../images/yiyi.jpg' }
-    },
-    'boba tea': 
-    {
-        'mango milk tea': { rating: 5, review: 'good', image: '../images/yiyi.jpg' }
-    }
-};
+var info = {}
+
 
 var highlight = 
 {
@@ -80,6 +70,28 @@ function gatherHighlights(info, highlight)
         }
     }
 }
+
+function populateInitialCategoryNames(name) {
+    const categoryBox = document.getElementById("buttonList");
+    const input = document.createElement("input");
+    input.className = "category-name-btn-input";
+    input.type = "text";
+   
+    input.value = name;
+    input.dataset.originalValue = input.value;
+    categoryBox.appendChild(input);
+  
+  
+    // Turn input to button when done editing
+    input.onblur = function(){closeCategoryNameInput(input);};
+    input.ondblclick = function(){openCategoryNameInput(input);};
+    input.onclick = function(){selectCategoryNameInput(input);};
+    input.onkeydown = function(event) {
+      if(event.key === "Enter") {
+        input.blur(); // Better to blur than just set readOnly
+      }
+    };
+  }
 
 // Function to display an individual item
 function displayItemInfo(title, rating, review, image, contentBox)
@@ -203,12 +215,61 @@ function populateStats()
     }
 }
 
+async function getInfo(user_id) {
+    try {
+      const response = await fetch('http://127.0.0.1:5000/user-info', {
+        method: 'GET',
+        headers: {
+            'userid': user_id
+        }
+      });
+    
+      const result = await response.json()
+    
+      if (result.status === 'success') {
+        return result.info
+      } else {
+          console.log('Error:', result.message);
+      }
+  
+    } catch(error) {
+        console.error('Error:', error);
+    };
+  }
+
 stats = computeStats(info);
 
-gatherHighlights(info, highlight);
+document.addEventListener('DOMContentLoaded', async () => {
+    const userId = localStorage.getItem('userid');
+    info = await getInfo(userId); // info is populated from Flask here
 
-populateContent();
+    
+        // Save default to Flask
+        try {
+            await fetch('http://127.0.0.1:5000/add-category', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    userid: userId,
+                    category: 'Default Category'
+                })
+            });
+        } catch (err) {
+            console.error('Failed to save default category to backend:', err);
+        }
 
-populateBest();
+    // Now compute and render
+    stats = computeStats(info);
+    gatherHighlights(info, highlight);
+    populateContent();
+    populateBest();
+    populateStats();
 
-populateStats();
+    for (const categoryName in info) {
+        populateInitialCategoryNames(categoryName);
+    }
+
+    openFirstCategory();
+});
