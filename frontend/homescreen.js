@@ -3,6 +3,11 @@
 //import { recent } from './dashboard.js';
 let recent = 0
 
+// var info = {
+//   'ding tea': {'wintermelon milk tea': {rating: 2, review: 'goodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgood', image: ''}, 'peach oolong tea': {rating: 4, review: 'good', image: ''}, 'peacah oolong tea': {rating: 4, review: 'good', image: ''}, 'peachd oolong tea': {rating: 4, review: 'good', image: ''}, 'peach oodlong tea': {rating: 4, review: 'good', image: ''}},
+//   'boba tea': {'mango milk tea': {rating: 5, review: 'good', image: ''}}
+// };
+
 var info = {}
 
 
@@ -103,15 +108,14 @@ function displayItemInfo(title, rating, review, image, contentBox)
     // Create image element (if no image, set default)
     const entryImg = document.createElement('img');
     entryImg.className = 'entry-img';
-    if (image) 
-    {
+    if (image) {
         entryImg.src = image;
-        entryImg.alt = title; // Set alt text to the title if image exists
-    } 
-    else 
-    {
-        entryImg.src = ''; // No image case, it can display a placeholder or nothing
-        entryImg.alt = 'No image available'; // Optional: alternative text for accessibility
+        entryImg.alt = title;
+    } else {
+        entryImg.style.backgroundColor = 'black'; // black box fallback
+        entryImg.style.width = '100px'; // or whatever your image size is
+        entryImg.style.height = '100px';
+        entryImg.style.display = 'inline-block'; // makes it behave like an image
     }
 
     // Create the content wrapper
@@ -237,7 +241,6 @@ async function getInfo(user_id) {
     };
   }
 
-stats = computeStats(info);
 
 document.addEventListener('DOMContentLoaded', async () => {
     const userId = localStorage.getItem('userid');
@@ -273,3 +276,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     openFirstCategory();
 });
+
+// stats = computeStats(info);
+// gatherHighlights(info, highlight);
+// populateContent();
+// populateBest();
+// populateStats();
