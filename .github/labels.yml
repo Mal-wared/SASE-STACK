@@ -1,0 +1,116 @@
+# GitHub Labels Configuration
+# This file can be used with github-label-sync or similar tools to automatically create labels
+
+labels:
+  # Type Labels
+  - name: "bug"
+    color: "d73a4a"
+    description: "Something isn't working"
+  
+  - name: "enhancement"
+    color: "a2eeef"
+    description: "New feature or request"
+  
+  - name: "documentation"
+    color: "0075ca"
+    description: "Improvements or additions to documentation"
+  
+  - name: "question"
+    color: "d876e3"
+    description: "Further information is requested"
+  
+  - name: "duplicate"
+    color: "cfd3d7"
+    description: "This issue or pull request already exists"
+  
+  - name: "wontfix"
+    color: "ffffff"
+    description: "This will not be worked on"
+
+  # Component Labels
+  - name: "frontend"
+    color: "1d76db"
+    description: "HTML/CSS/JavaScript related"
+  
+  - name: "backend"
+    color: "0e8a16"
+    description: "Flask/Python/API related"
+  
+  - name: "database"
+    color: "5319e7"
+    description: "SQLite schema or data related"
+  
+  - name: "authentication"
+    color: "fbca04"
+    description: "User login/signup system"
+  
+  - name: "dashboard"
+    color: "ff6347"
+    description: "Dashboard functionality"
+  
+  - name: "home-screen"
+    color: "20b2aa"
+    description: "Home screen features"
+  
+  - name: "category-management"
+    color: "ff1493"
+    description: "Category creation/editing"
+  
+  - name: "rating-system"
+    color: "ffd700"
+    description: "Item rating and review features"
+
+  # Priority Labels
+  - name: "priority: critical"
+    color: "b60205"
+    description: "Critical bugs or security issues"
+  
+  - name: "priority: high"
+    color: "d93f0b"
+    description: "Important features or significant bugs"
+  
+  - name: "priority: medium"
+    color: "fbca04"
+    description: "Standard features or minor bugs"
+  
+  - name: "priority: low"
+    color: "0e8a16"
+    description: "Nice-to-have features or cosmetic issues"
+
+  # Difficulty Labels
+  - name: "good first issue"
+    color: "7057ff"
+    description: "Good for newcomers"
+  
+  - name: "help wanted"
+    color: "008672"
+    description: "Extra attention is needed"
+  
+  - name: "difficulty: easy"
+    color: "c2e0c6"
+    description: "Easy to implement"
+  
+  - name: "difficulty: medium"
+    color: "fef2c0"
+    description: "Moderate complexity"
+  
+  - name: "difficulty: hard"
+    color: "ffc9c9"
+    description: "Complex implementation required"
+
+  # Status Labels
+  - name: "status: blocked"
+    color: "e99695"
+    description: "Blocked by other issues or external factors"
+  
+  - name: "status: in-review"
+    color: "6f42c1"
+    description: "Under code review"
+  
+  - name: "status: needs-testing"
+    color: "f9d0c4"
+    description: "Needs manual testing"
+  
+  - name: "status: ready-to-merge"
+    color: "28a745"
+    description: "Ready to be merged"

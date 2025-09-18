@@ -1,0 +1,62 @@
+{
+  "name": "SASE-STACK Development",
+  "body": "Main development project board for the Personal Rating App",
+  "template": "basic_kanban",
+  "columns": [
+    {
+      "name": "Backlog",
+      "preset": "to_do"
+    },
+    {
+      "name": "Ready for Development",
+      "preset": "to_do"
+    },
+    {
+      "name": "In Progress",
+      "preset": "in_progress"
+    },
+    {
+      "name": "Code Review",
+      "preset": "in_progress"
+    },
+    {
+      "name": "Testing",
+      "preset": "in_progress"
+    },
+    {
+      "name": "Done",
+      "preset": "done"
+    }
+  ],
+  "automation_settings": {
+    "preset": "basic",
+    "auto_add": {
+      "enabled": true,
+      "rules": [
+        {
+          "filters": {
+            "state": "open"
+          },
+          "column": "Backlog"
+        }
+      ]
+    },
+    "auto_move": {
+      "enabled": true,
+      "rules": [
+        {
+          "filters": {
+            "pull_request": "opened"
+          },
+          "column": "Code Review"
+        },
+        {
+          "filters": {
+            "pull_request": "merged"
+          },
+          "column": "Done"
+        }
+      ]
+    }
+  }
+}

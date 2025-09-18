@@ -1,0 +1,110 @@
+name: Project Management Automation
+
+on:
+  issues:
+    types: [opened, labeled, assigned]
+  pull_request:
+    types: [opened, ready_for_review, closed]
+
+jobs:
+  manage_project:
+    runs-on: ubuntu-latest
+    name: Manage GitHub Project
+    
+    steps:
+      - name: Add issue to project
+        if: github.event_name == 'issues' && github.event.action == 'opened'
+        uses: actions/add-to-project@v0.4.0
+        with:
+          project-url: https://github.com/orgs/Mal-wared/projects/1  # Update with actual project URL
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Add pull request to project
+        if: github.event_name == 'pull_request' && github.event.action == 'opened'
+        uses: actions/add-to-project@v0.4.0
+        with:
+          project-url: https://github.com/orgs/Mal-wared/projects/1  # Update with actual project URL
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  auto_label:
+    runs-on: ubuntu-latest
+    name: Auto-label issues and PRs
+    
+    steps:
+      - name: Label frontend issues
+        if: contains(github.event.issue.title, '[FRONTEND]') || contains(github.event.pull_request.title, '[FRONTEND]')
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['frontend']
+            });
+
+      - name: Label backend issues
+        if: contains(github.event.issue.title, '[BACKEND]') || contains(github.event.pull_request.title, '[BACKEND]')
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['backend']
+            });
+
+      - name: Label bug reports
+        if: contains(github.event.issue.title, '[BUG]') || contains(github.event.pull_request.title, '[BUG]')
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['bug']
+            });
+
+      - name: Label documentation issues
+        if: contains(github.event.issue.title, '[DOCS]') || contains(github.event.pull_request.title, '[DOCS]')
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['documentation']
+            });
+
+  assign_reviewers:
+    runs-on: ubuntu-latest
+    name: Auto-assign reviewers
+    if: github.event_name == 'pull_request' && github.event.action == 'opened'
+    
+    steps:
+      - name: Assign frontend reviewers
+        if: contains(github.event.pull_request.title, '[FRONTEND]')
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.pulls.requestReviewers({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              reviewers: ['Mal-wared']  # Update with actual reviewer usernames
+            });
+
+      - name: Assign backend reviewers
+        if: contains(github.event.pull_request.title, '[BACKEND]')
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.pulls.requestReviewers({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              reviewers: ['Mal-wared']  # Update with actual reviewer usernames
+            });

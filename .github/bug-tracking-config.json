@@ -1,0 +1,54 @@
+{
+  "name": "SASE-STACK Bug Tracking",
+  "body": "Bug tracking and resolution board for the Personal Rating App",
+  "template": "basic_kanban",
+  "columns": [
+    {
+      "name": "New Bugs",
+      "preset": "to_do"
+    },
+    {
+      "name": "Investigating",
+      "preset": "in_progress"
+    },
+    {
+      "name": "In Progress",
+      "preset": "in_progress"
+    },
+    {
+      "name": "Testing",
+      "preset": "in_progress"
+    },
+    {
+      "name": "Resolved",
+      "preset": "done"
+    }
+  ],
+  "automation_settings": {
+    "preset": "basic",
+    "auto_add": {
+      "enabled": true,
+      "rules": [
+        {
+          "filters": {
+            "state": "open",
+            "label": "bug"
+          },
+          "column": "New Bugs"
+        }
+      ]
+    },
+    "auto_move": {
+      "enabled": true,
+      "rules": [
+        {
+          "filters": {
+            "pull_request": "merged",
+            "label": "bug"
+          },
+          "column": "Resolved"
+        }
+      ]
+    }
+  }
+}
