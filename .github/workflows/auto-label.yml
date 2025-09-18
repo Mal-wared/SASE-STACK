@@ -1,0 +1,81 @@
+name: Auto Label Issues
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Label Frontend Issues
+        if: contains(github.event.issue.body, 'Frontend') || contains(github.event.issue.body, 'HTML') || contains(github.event.issue.body, 'CSS') || contains(github.event.issue.body, 'JavaScript')
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['frontend']
+            })
+
+      - name: Label Backend Issues
+        if: contains(github.event.issue.body, 'Backend') || contains(github.event.issue.body, 'Flask') || contains(github.event.issue.body, 'API')
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['backend']
+            })
+
+      - name: Label Database Issues
+        if: contains(github.event.issue.body, 'Database') || contains(github.event.issue.body, 'SQLite') || contains(github.event.issue.body, 'SQL')
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['database']
+            })
+
+      - name: Label Authentication Issues
+        if: contains(github.event.issue.body, 'Authentication') || contains(github.event.issue.body, 'login') || contains(github.event.issue.body, 'signup')
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['authentication']
+            })
+
+      - name: Label High Priority Issues
+        if: contains(github.event.issue.title, '[SECURITY]') || contains(github.event.issue.body, 'critical') || contains(github.event.issue.body, 'urgent')
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['high-priority']
+            })
+
+      - name: Label Performance Issues
+        if: contains(github.event.issue.title, '[PERFORMANCE]') || contains(github.event.issue.body, 'slow') || contains(github.event.issue.body, 'performance')
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['performance']
+            })
